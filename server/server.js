@@ -4,7 +4,7 @@ import 'dotenv/config'
 import prisma from './config/db.js';
 import { clerkMiddleware } from '@clerk/express'
 import { serve } from "inngest/express";
-import { inngest, functions } from "./inngest/index.js"
+import { inngest, functions } from "./inggest/index.js"
 
 const app=express();
 
