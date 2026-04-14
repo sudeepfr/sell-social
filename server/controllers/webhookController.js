@@ -10,7 +10,7 @@ export const handleClerkWebhook = async (req, res) => {
       event.type === "subscription.created" ||
       event.type === "subscription.updated"
     ) {
-      const userId = event.data.user_id;
+      const userId = event.data.user?.id;
 
       await clerkClient.users.updateUser(userId, {
         publicMetadata: {
@@ -22,7 +22,7 @@ export const handleClerkWebhook = async (req, res) => {
     }
 
     if (event.type === "subscription.deleted") {
-      const userId = event.data.user_id;
+      const userId = event.data.user?.id;
 
       await clerkClient.users.updateUser(userId, {
         publicMetadata: {
