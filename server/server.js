@@ -6,13 +6,12 @@ import { serve } from "inngest/express";
 import { inngest, functions } from "./inggest/index.js"
 import listingRouter from './routes/listingRoutes.js';
 import chatRouter from './routes/chatRoutes.js';
-import webhookRoute from './routes/webhookRoutes.js';
+
 const app=express();
 
 app.use(express.json());
 app.use(cors());
 app.use(clerkMiddleware())
-app.use("/api/webhook", webhookRoute);
 app.get('/',(req,res)=>{
      res.send("Server is live!")
 })
