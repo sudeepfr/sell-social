@@ -17,11 +17,29 @@ import CredentialChange from "./pages/admin/CredentialChange";
 import CredentialVerify from "./pages/admin/CredentialVerify";
 import Transactions from "./pages/admin/Transactions";
 import Withdrawal from "./pages/admin/Withdrawal";
+import { useAuth, useUser } from "@clerk/clerk-react";
+import { useDispatch } from "react-redux";
+import { useEffect } from "react";
+import { getAllPublicListing, getAllUserListing } from "./app/features/listingslice.js";
 
 function App() {
-  const {pathname}=useLocation();
 
-  
+  const {pathname}=useLocation();
+  const {getToken}=useAuth();
+  const {user,isLoaded}=useUser();
+  const dispatch =useDispatch();
+
+  useEffect(()=>{
+     dispatch(getAllPublicListing());  
+  },[])
+
+  useEffect(()=>{
+    if(isLoaded&&user){
+       dispatch(getAllUserListing({getToken}))
+    }
+  },[isLoaded,user])
+ 
+
   return (
     <div>
       <Toaster/>
