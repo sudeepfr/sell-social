@@ -11,12 +11,12 @@ import toast from 'react-hot-toast';
 import api from '../configs/axios';
 import { getAllPublicListing, getAllUserListing } from '../app/features/listingslice';
 
-const MyListings = () => {
+const MyListings = () => { 
   const {userListings,balance}=useSelector((state)=>state.listing)
   const currency=import.meta.env.VITE_CURRENCY || '$';
   const navigate=useNavigate();
     
-    const {getToken}=useAuth();
+    const {getToken}=useAuth();         
     const dispatch= useDispatch();
 
     const [showCredentialSubmission,setShowCredentialSubmission]=useState(null);
@@ -92,7 +92,7 @@ const MyListings = () => {
             const confirm=window.confirm('Are your sure want to delete this listing? if the credential are chenged, new credential will be sent to your email')
 
             if(!confirm) return;
-            toast.loading('Deleting listing')
+            toast.loading('Deleting listing...')
             const token=await getToken();
             const {data}=await api.delete(`/api/listing/${listingId}`, {headers:{Authorization:`Bearer ${token}`}});
              dispatch(getAllUserListing({getToken}));

@@ -1,15 +1,24 @@
 import { CirclePlus, X } from 'lucide-react';
 import React, { useState } from 'react'
 import toast from 'react-hot-toast';
+import { useDispatch } from 'react-redux';
+import api from '../configs/axios.js';
+import { getAllUserListing } from '../app/features/listingslice.js';
+import { useAuth } from '@clerk/clerk-react';
 
 const CredentialSubmission = ({onClose,listing}) => {
+
+
+     const {getToken}=useAuth();
+     const dispatch=useDispatch();
+
     const [newField ,setNewField]=useState("");
     const [credential,setCredential]=useState([
         {type:"email",name:"Email",value:""},
         {type:"password",name:"password",value:""},
     ])
-    
-     const handleAddField=()=>{
+       
+     const handleAddField=()=>{ 
          const name=newField.trim();
          if(!name) return toast("Please enter a field name")
             setCredential((prev)=>[...prev,{type:"text",name:name,value:""}])
@@ -17,11 +26,34 @@ const CredentialSubmission = ({onClose,listing}) => {
      }
     const handleSubmission=async(e)=>{
          e.preventDefault();
+         try {
+           //check id there is at least one field
+           if(credential.length===0){
+             return toast.error("please add at least one field");
+           }
+           //check all fields are filled
+           for(const cred of credential){
+             if(!cred.value){
+               return toast.error(`please fill in the ${cred.name} field`);
+             }
+           }
+
+           const confirm =window.confirm("Credential will be verified & changed post submission.are you want to submit?");
+           if(!confirm) return;
+           const token =await getToken();
+           const{data}=await api.post('/api/listing/add-credential',{credential,listingId:listing.id},{headers:{Authorization:`Bearer ${token}`}})
+           toast.success(data.message);
+           dispatch(getAllUserListing({getToken}));
+           onClose()
+         } catch (error) {
+            toast.error(error?.response?.data?.message||error?.message);
+            console.log(error);
+         }
     }
 
   return (
     <div className='fixed inset-0 bg-black/70 backdrop-blur bg-opacity-50 z-100 flex items-center justify-center sm:p-4'>
-      <div className='bg-white sm:rounded-lg shadow-2xl w-full max-w-lg h-screen sm:h-[320px] flex flex-col '>
+      <div className='bg-white sm:rounded-lg shadow-2xl w-full max-w-lg h-screen sm:h-80 flex flex-col '>
          {/* header */}
             <div className='flex-1 min-w-0'>
                     <div>

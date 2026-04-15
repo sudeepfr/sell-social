@@ -4,29 +4,44 @@ import { dummyChats } from '../assets/assets';
 import { Loader2, Loader2Icon, Send, X } from 'lucide-react';
 import { clearChat } from '../app/features/chatSlice';
 import {format} from 'date-fns'
+import { useAuth, useUser } from '@clerk/clerk-react';
+import api from '../configs/axios.js';
+import toast from 'react-hot-toast';
 
 const ChatBox = () => {
-    const dispatch=useDispatch();
-  
     const {listing,isOpen,chatId}=useSelector((state)=>state.chat);
-    const user={id:'user_2'};
+    const dispatch=useDispatch();
+    const {getToken}=useAuth();
+    const {user}=useUser();
      
      const [chat ,setChat]=useState(null);
      const [messages ,setMessages]=useState([]);
-     const [newMessages ,setNewMessages]=useState("");
+     const [newMessage ,setnewMessage]=useState("");
      const [isLoading ,setIsLoading]=useState(true);
      const [isSending ,setIsSending]=useState(false);
 
      const fetchChat=async()=>{
-         setChat(dummyChats[0]);
-         setMessages(dummyChats[0].messages);
-         setIsLoading(false);
+         try {
+            const token=await getToken();
+            const {data}=await api.post('/api/chat',{listingId:listing.id,chatId},{headers:{Authorization:`Bearer ${token}`}});
+            setChat(data?.chat)
+            setMessages(data?.chat?.messages||[]);
+            setIsLoading(false);
+
+         } catch (error) {
+            toast.error(error?.response?.data?.message||error?.message);
+            console.log(error);
+         }
 
      }
 
      useEffect(()=>{
         if(listing){
              fetchChat();
+             const interval=setInterval(()=>{
+                fetchChat();
+             },3000)
+             return ()=>clearInterval(interval);
         }
      },[listing])
 
@@ -35,7 +50,7 @@ const ChatBox = () => {
              setChat(null);
              setMessages([]);
              setIsLoading(true);
-             setNewMessages("");
+             setnewMessage("");
              setIsSending(false);
          }
      },[isOpen])
@@ -49,9 +64,19 @@ const ChatBox = () => {
    
        const handleSendMessage=async(e)=>{
           e.preventDefault();
-          if(!newMessages.trim()||isSending) return;
-          setMessages([...messages,{id:Date.now(),chatId:chat.id, sender_id:user.id,message:newMessages,createdAt:new Date()}]);
-          setNewMessages("");
+          if(!newMessage.trim()||isSending) return;
+          try {
+            setIsSending(true);
+            const token=await getToken();
+            const {data}=await api.post('/api/chat/send-message',{chatId:chat.id,message:newMessage},{headers:{Authorization:`Bearer ${token}`}});
+            setMessages([...messages,data.newMessage]);
+            setnewMessage("");
+            setIsSending(false);
+          } catch (error) {
+            toast.error(error?.response?.data?.message||error?.message);
+            console.log(error);
+            setIsSending(false);
+          }
        }
 
       if(!isOpen || !listing){
@@ -103,8 +128,8 @@ const ChatBox = () => {
                     <div className='flex items-end space-x-2'>
 
                         <textarea
-                         value={newMessages}
-                         onChange={(e)=>setNewMessages(e.target.value)}
+                         value={newMessage}
+                         onChange={(e)=>setnewMessage(e.target.value)}
                          onKeyDown={(e)=>{
                              if(e.key==="Enter" && !e.shiftKey) {
                                  e.preventDefault();
@@ -113,7 +138,7 @@ const ChatBox = () => {
                              }
                          }}
                          placeholder='Type your message...'  className='flex-1 resize-none border border-gray-300 rounded-lg px-4 py-2 focus:outline-indigo-500 max-h-32'/>
-                        <button disabled={!newMessages.trim()||isSending} type='submit' className='bg-indigo-600 hover:bg-indigo-700 text-white p-2.5 rounded-lg disabled:opacity-50 transition-colors'>
+                        <button disabled={!newMessage.trim()||isSending} type='submit' className='bg-indigo-600 hover:bg-indigo-700 text-white p-2.5 rounded-lg disabled:opacity-50 transition-colors'>
                             {isSending?
                             <Loader2 className='w-5 h-5 animate-spin'/>
                             :

@@ -18,4 +18,4 @@ listingRouter.post('/withdraw',protect,withdrawAmount);
 listingRouter.post('/purchase-account/:listingId',protect,purchaseAccount);
 
 
-export default listingRouter 
+export default listingRouter    

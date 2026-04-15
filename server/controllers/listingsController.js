@@ -92,7 +92,7 @@ export const getAllUserListing = async (req, res) => {
         const balance = {
             earned: user.earned,
             withdrawn: user.withdrawn,
-            available: user.earned - user.withdrawn,
+            available: user.earned - user.withdrawn,   
 
         }
         if (!listings || listings.length === 0) {
@@ -191,14 +191,14 @@ export const toggleStatus = async (req, res) => {
         if (!listing) {
             return res.status(404).json({ message: "Listing not found" });
         }
-        let updated;
+       
         if (listing.status === "active" || listing.status === "inactive") {
-            updated = await prisma.listing.update({
+             await prisma.listing.update({
                 where: { id, ownerId: userId },
                 data: { status: listing.status === "active" ? "inactive" : "active" }
             })
         }
-        return res.json({ message: "Listing status updated successfully", listing: updated });
+        return res.json({ message: "Listing status updated successfully", listing});
 
     } catch (error) {
         console.log(error);

@@ -11,6 +11,7 @@ const ManageListing = () => {
   const {id} =useParams();
   const navigate=useNavigate();
   const {userListings}=useSelector((state)=>state.listing)
+
   const {getToken }=useAuth();
   const dispatch=useDispatch();
   const [loadingListing,setLoadingListing]=useState(false);
@@ -92,6 +93,7 @@ const ManageListing = () => {
 
              const {data}=await api.put('/api/listing',formDataInstance,{headers:{Authorization:`Bearer ${token}`}});
              toast.dismissAll();
+             
              toast.success(data.message);
              dispatch(getAllUserListing({getToken}));
              dispatch(getAllPublicListing());
