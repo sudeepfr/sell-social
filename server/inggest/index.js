@@ -64,13 +64,12 @@ const syncUserDeletion = inngest.createFunction(
             data:{status:"inactive"}
          })
      }
-    return { success: true };
   },
   
 );
 //inngest function to update user data in database
  const syncUserUpdation = inngest.createFunction(
-  { id: "update-user-from-clerk", triggers: [{ event: "clerk/user.created" }] },
+  { id: "update-user-from-clerk", triggers: [{ event: "clerk/user.updated" }] },
   async ({ event }) => {
      const {data}=event
      
