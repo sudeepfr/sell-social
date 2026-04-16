@@ -34,7 +34,7 @@ const WithdrawModal = ({ onClose }) => {
                      return toast.error(`please fill in the ${field.name} field`);
                  }
             }
-
+  
             const confirm=window.confirm("Are you sure you want to submit?");
             if(!confirm) return;
             const token=await getToken();
